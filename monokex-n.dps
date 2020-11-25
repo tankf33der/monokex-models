@@ -1,0 +1,26 @@
+// deepsec 2.0.2
+
+// Channel
+free c.
+
+// Private key
+free R [private].
+
+// Constans
+const pid, zero.
+
+// Functions
+fun pk/1.
+fun h/1.
+fun mac/2.
+fun senc/2.
+reduc sdec(senc(x,y),y) = x.
+
+let Initiator(RS) =
+    new E;
+    let H0 = h(pid) in
+    let H1 = mac(RS, H0) in
+    let H2 = mac(H1, H1) in
+    let H3 = mac(pk(E), H2) in
+    let H4 = mac(
+

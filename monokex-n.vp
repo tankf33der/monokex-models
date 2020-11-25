@@ -9,7 +9,7 @@ principal I[
 
 principal R[
     knows public pid, zero
-    knows private R
+    generates R
     RS = G^R
 ]
 
