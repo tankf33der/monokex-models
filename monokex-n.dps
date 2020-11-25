@@ -13,8 +13,15 @@ const pid, zero.
 fun pk/1.
 fun h/1.
 fun mac/2.
+
+// Symmetric encryption
 fun senc/2.
 reduc sdec(senc(x,y),y) = x.
+
+// Diffie-Hellman
+fun mult/2.
+
+
 
 let Initiator(RS) =
     new E;
