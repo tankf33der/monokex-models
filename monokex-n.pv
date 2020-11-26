@@ -10,6 +10,7 @@
     o) mac, kdf via key type
     o) if T1 = T1 then set event (!)
     o) weaksecret msg
+    o) deniability equivalence (nl, p 41)
 
     choice VS. query,noninfer,weaksecret (cant be in one file)
     o) choice, compare terms, will be another file (!)
