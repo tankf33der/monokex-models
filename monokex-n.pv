@@ -1,2 +1,72 @@
-// Proverif 2.02p1
-// Monokex, "N" pattern
+(* Proverif 2.02p1 *)
+(* Monokex, "N" pattern *)
+
+free c: channel.
+
+type point.
+type scalar.
+
+fun pt2bs(point): bitstring [data, typeConverter].
+
+const pid: bitstring.
+const zero: bitstring.
+const Base: point [data].
+
+fun mac(bitstring, bitstring) : bitstring.
+fun mult(scalar, point) : point.
+equation forall x: scalar, y: scalar;
+   mult(x, mult(y, Base)) = mult(y, mult(x, Base)).
+fun enc(bitstring, bitstring): bitstring.
+reduc forall a: bitstring, b: bitstring;
+   dec(enc(a, b), b) = a.
+fun first(bitstring): bitstring.
+fun second(bitstring): bitstring.
+reduc forall x: bitstring;
+   unsplit(first(x), second(x)) = x.
+
+(* XXX *)
+free H6: bitstring [private].
+query attacker(H6).
+
+let Initiator(RS: point) =
+   new E: scalar;
+   new p1: bitstring;
+
+   let IE = mult(E, Base) in
+   let H0 = pid in
+   let H1 = mac(H0, pt2bs(RS)) in
+   let H2 = mac(H1, H1) in
+   let H3 = mac(H2, pt2bs(IE)) in
+   let H4 = mac(H3, pt2bs(mult(E, RS))) in
+   let Z1 = enc(H4, zero) in
+   let H5 = first(Z1) in
+   let K1 = second(Z1) in
+   let S1 = enc(K1, p1) in
+   let Z2 = mac(H5, S1) in
+   let H6 = first(Z2) in
+   let T1 = second(Z2) in
+   out(c, (IE, S1, T1))
+.
+
+let Responder(R: scalar, RS: point) =
+   in(c, (IE: point, S1: bitstring, T1: bitstring));
+   let H0 = pid in
+   let H1 = mac(H0, pt2bs(RS)) in
+   let H2 = mac(H1, H1) in
+   let H3 = mac(H2, pt2bs(IE)) in
+   let H4 = mac(H3, pt2bs(mult(R, IE))) in
+   let Z1 = enc(H4, zero) in
+   let H5 = first(Z1) in
+   let K1 = second(Z1) in
+   let Z2 = mac(H5, S1) in
+   let H6 = first(Z2) in
+   let T1 = second(Z2) in
+   out(c, T1)
+.
+
+process
+   new R: scalar;
+
+   let RS = mult(R, Base) in
+   out(c, RS);
+   !Initiator(RS) | !Responder(R, RS)
