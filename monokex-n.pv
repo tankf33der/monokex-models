@@ -1,6 +1,9 @@
 (* Proverif 2.02p1 *)
 (* Monokex, "N" pattern *)
 
+set traceDisplay = long.
+set attacker = active.
+
 free c: channel.
 
 type point.
