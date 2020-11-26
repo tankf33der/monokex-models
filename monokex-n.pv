@@ -1,8 +1,7 @@
 (* Proverif 2.02p1 *)
-(* Monokex, "N" pattern *)
+(* Monokex, "N" pattern, warmup *)
 
 set traceDisplay = long.
-set attacker = active.
 
 free c: channel.
 
@@ -16,6 +15,7 @@ const zero: bitstring.
 const Base: point [data].
 
 fun mac(bitstring, bitstring) : bitstring.
+
 fun mult(scalar, point) : point.
 equation forall x: scalar, y: scalar;
    mult(x, mult(y, Base)) = mult(y, mult(x, Base)).
