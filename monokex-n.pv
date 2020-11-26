@@ -25,8 +25,8 @@ reduc forall x: bitstring;
    unsplit(first(x), second(x)) = x.
 
 (* XXX *)
-free H6: bitstring [private].
-query attacker(H6).
+free msg: bitstring [private].
+query attacker(msg).
 
 let Initiator(RS: point) =
    new E: scalar;
@@ -61,7 +61,7 @@ let Responder(R: scalar, RS: point) =
    let Z2 = mac(H5, S1) in
    let H6 = first(Z2) in
    let T1 = second(Z2) in
-   out(c, T1)
+   out(c, enc(H6, msg))
 .
 
 process
@@ -69,4 +69,4 @@ process
 
    let RS = mult(R, Base) in
    out(c, RS);
-   !Initiator(RS) | !Responder(R, RS)
+   (!Initiator(RS)) | (!Responder(R, RS))
