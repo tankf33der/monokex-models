@@ -1,5 +1,6 @@
 (* Proverif 2.02p1 *)
 (* Monokex, "N" pattern, warmup *)
+(* active attacker by defauly *)
 
 (*
     TODO: this list should be empty:
@@ -8,6 +9,7 @@
     o) H6 created, check via enc,dec
     o) mac, kdf via key type
     o) if T1 = T1 then set event (!)
+    o) weaksecret msg
 
     choice VS. query,noninfer,weaksecret (cant be in one file)
     o) choice, compare terms, will be another file (!)
@@ -47,6 +49,11 @@ reduc forall x: bitstring;
 (* XXX, later check keys *)
 free msg: bitstring [private].
 query attacker(msg).
+(*
+   weaksecret msg.
+   - false pseudo alarm could be disabled by
+   - switching to probalistic encryption mode
+*)
 
 (* Secrecy assumptions *)
 not attacker(new R).
