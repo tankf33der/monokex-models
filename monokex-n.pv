@@ -5,8 +5,14 @@
 $ proverif -color monokex-n.pv | egrep "RES|ok"
 ok, secrecy assumption verified: fact unreachable attacker(R[])
 ok, secrecy assumption verified: fact unreachable attacker(E[!1 = v])
-ok, secrecy assumption verified: fact unreachable attacker(msg[!1 = v])
-RESULT not attacker(msg[!1 = v]) is true.
+ok, secrecy assumption verified: fact unreachable attacker(msgA[!1 = v])
+ok, secrecy assumption verified: fact unreachable attacker(msgB[!1 = v])
+RESULT not attacker(msgA[!1 = v]) is true.
+ok, secrecy assumption verified: fact unreachable attacker(R[])
+ok, secrecy assumption verified: fact unreachable attacker(E[!1 = v])
+ok, secrecy assumption verified: fact unreachable attacker(msgA[!1 = v])
+ok, secrecy assumption verified: fact unreachable attacker(msgB[!1 = v])
+RESULT not attacker(msgB[!1 = v]) is true.
 *)
 (*
     ================================
@@ -57,22 +63,21 @@ fun second(bitstring): bitstring.
 reduc forall x: bitstring;
    unsplit(first(x), second(x)) = x.
 
+(* Secrecy query *)
 (* XXX, later check keys *)
-query attacker(new msg).
-(*
-   weaksecret msg.
-   - false pseudo alarm could be disabled by
-   - switching to probalistic encryption mode
-*)
+query attacker(new msgA).
+query attacker(new msgB).
 
 (* Secrecy assumptions *)
 not attacker(new R).
 not attacker(new E).
-not attacker(new msg).
+not attacker(new msgA).
+not attacker(new msgB).
 
 let Initiator(RS: bitstring) =
    new E: exponent;
    new p1: bitstring;
+   new msgA: bitstring;
 
    let IE = exp(g, E) in
    let H0 = pid in
@@ -87,11 +92,12 @@ let Initiator(RS: bitstring) =
    let Z2 = mac(H5, S1) in
    let H6 = first(Z2) in
    let T1 = second(Z2) in
-   out(c, (IE, S1, T1))
+   out(c, (IE, S1, T1));
+   out(c, enc(H6, msgA))
 .
 
 let Responder(R: exponent, RS: bitstring) =
-   new msg: bitstring;
+   new msgB: bitstring;
 
    in(c, (IE: bitstring, S1: bitstring, zT1: bitstring));
    let H0 = pid in
@@ -106,8 +112,7 @@ let Responder(R: exponent, RS: bitstring) =
    let H6 = first(Z2) in
    let T1 = second(Z2) in
    (* if T1 = zT1 ... *)
-
-   out(c, enc(H6, msg))
+   out(c, enc(H6, msgB))
 .
 
 process
