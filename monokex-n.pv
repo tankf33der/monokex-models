@@ -40,7 +40,7 @@ free c: channel.
 const pid: bitstring.
 const zero: bitstring.
 
-(* XXX, mackey! *)
+(* XXX, use keys with correct params order *)
 type mackey.
 fun mac(bitstring, bitstring) : bitstring.
 
@@ -52,12 +52,12 @@ equation forall x: exponent, y: exponent;
    exp(exp(g, x), y) = exp(exp(g, y), x).
 
 (* Symmetric encryption *)
-(* XXX, key! *)
+(* XXX, use keys with correct params order *)
 fun enc(bitstring, bitstring): bitstring.
 reduc forall a: bitstring, b: bitstring;
    dec(enc(a, b), b) = a.
 
-(* Split *)
+(* Split (concat builtin kernel) *)
 fun first(bitstring): bitstring.
 fun second(bitstring): bitstring.
 reduc forall x: bitstring;
