@@ -1,6 +1,6 @@
 (* Proverif 2.02p1 *)
 (* Monokex, "N" pattern, warmup *)
-(* active attacker by defauly *)
+(* active attacker by default *)
 
 (*
     TODO: this list should be empty:
@@ -48,8 +48,7 @@ reduc forall x: bitstring;
    unsplit(first(x), second(x)) = x.
 
 (* XXX, later check keys *)
-free msg: bitstring [private].
-query attacker(msg).
+query attacker(new msg).
 (*
    weaksecret msg.
    - false pseudo alarm could be disabled by
@@ -59,6 +58,7 @@ query attacker(msg).
 (* Secrecy assumptions *)
 not attacker(new R).
 not attacker(new E).
+not attacker(new msg).
 
 let Initiator(RS: bitstring) =
    new E: exponent;
@@ -81,6 +81,8 @@ let Initiator(RS: bitstring) =
 .
 
 let Responder(R: exponent, RS: bitstring) =
+   new msg: bitstring;
+
    in(c, (IE: bitstring, S1: bitstring, T1: bitstring));
    let H0 = pid in
    let H1 = mac(H0, RS) in
