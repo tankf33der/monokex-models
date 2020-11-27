@@ -43,6 +43,8 @@ RESULT (even event(pong(a,b)) ==> event(ping(a,b)) is false.)
 (* Public channel *)
 free c: channel.
 
+type plain.
+
 (* Constants *)
 const pid: bitstring.
 const zero: bitstring.
@@ -108,19 +110,24 @@ let Initiator(RS: bitstring) =
    let Z2 = mac(H5, S1) in
    let H6 = first(Z2) in
    let T1 = second(Z2) in
-   event ping(E, RS);
+   (* let zTT = T1 in *)
+   (* if zTT=T1 then event done; *)
+   (* event ping(E, RS); *)
    out(c, (IE, S1, T1));
+
 
    (* try session key *)
    (* out(c, enc(H6, msgA)); *)
    in(c, zMsg: bitstring);
-   let (X:bitstring, Y:bitstring) = dec(H6, zMsg) in
-   if X<>T1 then event done
-   (* event done *)
+   let (X:bitstring, Y:plain) = dec(H6, zMsg) in
+   if X=T1 then event done
+   (* green - not called *)
+   (* red   - called *)
+
 .
 
 let Responder(R: exponent, RS: bitstring) =
-   new msgB: bitstring;
+   new msgB: plain;
 
    in(c, (IE: bitstring, S1: bitstring, zT1: bitstring));
    event pong(R, IE);
