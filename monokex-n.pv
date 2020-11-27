@@ -1,25 +1,7 @@
 (* Proverif 2.02p1 *)
 (* Monokex, "N" pattern, warmup *)
 (* active attacker by default *)
-(*
-$ proverif -color monokex-n.pv | egrep "RES|ok"
-ok, secrecy assumption verified: fact unreachable attacker(R[])
-ok, secrecy assumption verified: fact unreachable attacker(E[!1 = v])
-ok, secrecy assumption verified: fact unreachable attacker(msgA[!1 = v])
-ok, secrecy assumption verified: fact unreachable attacker(msgB[!1 = v])
-RESULT not attacker(msgA[!1 = v]) is true.
-ok, secrecy assumption verified: fact unreachable attacker(R[])
-ok, secrecy assumption verified: fact unreachable attacker(E[!1 = v])
-ok, secrecy assumption verified: fact unreachable attacker(msgA[!1 = v])
-ok, secrecy assumption verified: fact unreachable attacker(msgB[!1 = v])
-RESULT not attacker(msgB[!1 = v]) is true.
-ok, secrecy assumption verified: fact unreachable attacker(R[])
-ok, secrecy assumption verified: fact unreachable attacker(E[!1 = v])
-ok, secrecy assumption verified: fact unreachable attacker(msgA[!1 = v])
-ok, secrecy assumption verified: fact unreachable attacker(msgB[!1 = v])
-RESULT inj-event(pong(a,b)) ==> inj-event(ping(a,b)) is false.
-RESULT (even event(pong(a,b)) ==> event(ping(a,b)) is false.)
-*)
+(* $ proverif -color monokex-n.pv | egrep "RES|ok" *)
 (*
     ================================
     TODO: this list should be empty:
@@ -87,10 +69,12 @@ not attacker(new msgB).
 event ping(exponent, bitstring).
 event pong(exponent, bitstring).
 event done.
+event failed.
 query a: exponent, b: bitstring;
    inj-event(pong(a, b)) ==>
    inj-event(ping(a, b)).
 query event(done).
+query event(failed).
 
 let Initiator(RS: bitstring) =
    new E: exponent;
@@ -110,20 +94,14 @@ let Initiator(RS: bitstring) =
    let Z2 = mac(H5, S1) in
    let H6 = first(Z2) in
    let T1 = second(Z2) in
-   (* let zTT = T1 in *)
-   (* if zTT=T1 then event done; *)
-   (* event ping(E, RS); *)
+   event ping(E, RS);
    out(c, (IE, S1, T1));
 
+   (* out(c, enc(H6, (T1, msgA))); *)
 
-   (* try session key *)
-   (* out(c, enc(H6, msgA)); *)
-   in(c, zMsg: bitstring);
-   let (X:bitstring, Y:plain) = dec(H6, zMsg) in
-   if X=T1 then event done
-   (* green - not called *)
-   (* red   - called *)
-
+   in(c, (X: bitstring));
+   let Y1 = dec(H6, X) in
+   if Y1=T1 then event done else event failed
 .
 
 let Responder(R: exponent, RS: bitstring) =
@@ -142,9 +120,7 @@ let Responder(R: exponent, RS: bitstring) =
    let Z2 = mac(H5, S1) in
    let H6 = first(Z2) in
    let T1 = second(Z2) in
-   (* if T1 = zT1 ... *)
-   (* try session key *)
-   out(c, enc(H6, (T1, msgB)))
+   out(c, enc(H6, T1))
 .
 
 process
