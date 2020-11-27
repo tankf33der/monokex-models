@@ -17,7 +17,7 @@ RESULT not attacker(msgB[!1 = v]) is true.
 (*
     ================================
     TODO: this list should be empty:
-    o) events
+    o) add events
     o) query event + inj-event (attacks: impersonation, replay)
     o) H6 created, check via enc,dec
     o) mac, kdf via key type
