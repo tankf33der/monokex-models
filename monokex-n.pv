@@ -28,8 +28,10 @@ RESULT (even event(pong(a,b)) ==> event(ping(a,b)) is false.)
     o) mac, kdf via key type
     o) if T1 = zT1 then set event (!)
     o)    ^^^^^^^ find the way to do it
+    o)    ^^^^^^^ done event
     o) weaksecret msg
     o) deniability equivalence (nl, p 41)
+    o) read all settings in manual, pp. 102
 
     choice VS. query,noninfer,weaksecret (cant be in one file)
     o) replay attack detection via choice (manual, pp. 58-59)
@@ -62,7 +64,7 @@ fun enc(bitstring, bitstring): bitstring.
 reduc forall a: bitstring, b: bitstring;
    dec(enc(a, b), b) = a.
 
-(* Split (concat builtin kernel) *)
+(* Split *)
 fun first(bitstring): bitstring.
 fun second(bitstring): bitstring.
 reduc forall x: bitstring;
@@ -82,9 +84,11 @@ not attacker(new msgB).
 (* Events and authentication queries *)
 event ping(exponent, bitstring).
 event pong(exponent, bitstring).
+event done.
 query a: exponent, b: bitstring;
    inj-event(pong(a, b)) ==>
    inj-event(ping(a, b)).
+query event(done).
 
 let Initiator(RS: bitstring) =
    new E: exponent;
@@ -108,7 +112,11 @@ let Initiator(RS: bitstring) =
    out(c, (IE, S1, T1));
 
    (* try session key *)
-   out(c, enc(H6, msgA))
+   (* out(c, enc(H6, msgA)); *)
+   in(c, zMsg: bitstring);
+   let (X:bitstring, Y:bitstring) = dec(H6, zMsg) in
+   if X<>T1 then event done
+   (* event done *)
 .
 
 let Responder(R: exponent, RS: bitstring) =
@@ -129,7 +137,7 @@ let Responder(R: exponent, RS: bitstring) =
    let T1 = second(Z2) in
    (* if T1 = zT1 ... *)
    (* try session key *)
-   out(c, enc(H6, msgB))
+   out(c, enc(H6, (T1, msgB)))
 .
 
 process
