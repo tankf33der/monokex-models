@@ -15,11 +15,13 @@ RESULT not attacker(msg[!1 = v]) is true.
     o) query + inj-event
     o) H6 created, check via enc,dec
     o) mac, kdf via key type
-    o) if T1 = T1 then set event (!)
+    o) if T1 = zT1 then set event (!)
+    o)    ^^^^^^^ find the way to do it
     o) weaksecret msg
     o) deniability equivalence (nl, p 41)
 
     choice VS. query,noninfer,weaksecret (cant be in one file)
+    o) replay attack detection (via choice, manual, pp. 58-59
     o) choice, compare terms, will be another file (!)
     o) choice+sync
     o) etc.
@@ -32,8 +34,8 @@ free c: channel.
 const pid: bitstring.
 const zero: bitstring.
 
-(* XXX, key! *)
-type key.
+(* XXX, mackey! *)
+type mackey.
 fun mac(bitstring, bitstring) : bitstring.
 
 (* Diffie-Hellman *)
@@ -44,6 +46,7 @@ equation forall x: exponent, y: exponent;
    exp(exp(g, x), y) = exp(exp(g, y), x).
 
 (* Symmetric encryption *)
+(* XXX, key! *)
 fun enc(bitstring, bitstring): bitstring.
 reduc forall a: bitstring, b: bitstring;
    dec(enc(a, b), b) = a.
