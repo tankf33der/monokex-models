@@ -13,12 +13,17 @@ ok, secrecy assumption verified: fact unreachable attacker(E[!1 = v])
 ok, secrecy assumption verified: fact unreachable attacker(msgA[!1 = v])
 ok, secrecy assumption verified: fact unreachable attacker(msgB[!1 = v])
 RESULT not attacker(msgB[!1 = v]) is true.
+ok, secrecy assumption verified: fact unreachable attacker(R[])
+ok, secrecy assumption verified: fact unreachable attacker(E[!1 = v])
+ok, secrecy assumption verified: fact unreachable attacker(msgA[!1 = v])
+ok, secrecy assumption verified: fact unreachable attacker(msgB[!1 = v])
+RESULT inj-event(pong(a,b)) ==> inj-event(ping(a,b)) is false.
+RESULT (even event(pong(a,b)) ==> event(ping(a,b)) is false.)
 *)
 (*
     ================================
     TODO: this list should be empty:
     o) add events
-    o) query event + inj-event (attacks: impersonation, replay)
     o) H6 created, check via enc,dec
     o) mac, kdf via key type
     o) if T1 = zT1 then set event (!)
@@ -40,7 +45,7 @@ free c: channel.
 const pid: bitstring.
 const zero: bitstring.
 
-(* XXX, use keys with correct params order *)
+(* XXX, switch to use keys with correct params order *)
 type mackey.
 fun mac(bitstring, bitstring) : bitstring.
 
@@ -52,7 +57,7 @@ equation forall x: exponent, y: exponent;
    exp(exp(g, x), y) = exp(exp(g, y), x).
 
 (* Symmetric encryption *)
-(* XXX, use keys with correct params order *)
+(* XXX, switch to use keys with correct params order *)
 fun enc(bitstring, bitstring): bitstring.
 reduc forall a: bitstring, b: bitstring;
    dec(enc(a, b), b) = a.
@@ -74,6 +79,13 @@ not attacker(new E).
 not attacker(new msgA).
 not attacker(new msgB).
 
+(* Events and authentication queries *)
+event ping(exponent, bitstring).
+event pong(exponent, bitstring).
+query a: exponent, b: bitstring;
+   inj-event(pong(a, b)) ==>
+   inj-event(ping(a, b)).
+
 let Initiator(RS: bitstring) =
    new E: exponent;
    new p1: bitstring;
@@ -92,7 +104,10 @@ let Initiator(RS: bitstring) =
    let Z2 = mac(H5, S1) in
    let H6 = first(Z2) in
    let T1 = second(Z2) in
+   event ping(E, RS);
    out(c, (IE, S1, T1));
+
+   (* try session key *)
    out(c, enc(H6, msgA))
 .
 
@@ -100,6 +115,7 @@ let Responder(R: exponent, RS: bitstring) =
    new msgB: bitstring;
 
    in(c, (IE: bitstring, S1: bitstring, zT1: bitstring));
+   event pong(R, IE);
    let H0 = pid in
    let H1 = mac(H0, RS) in
    let H2 = mac(H1, H1) in
@@ -112,6 +128,7 @@ let Responder(R: exponent, RS: bitstring) =
    let H6 = first(Z2) in
    let T1 = second(Z2) in
    (* if T1 = zT1 ... *)
+   (* try session key *)
    out(c, enc(H6, msgB))
 .
 
