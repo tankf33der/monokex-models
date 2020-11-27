@@ -21,25 +21,25 @@ principal I[
     IE = G^E
 
     H0 = HASH(pid)
-    H1 = HKDF(H0, RS, nil)
+    H1 = HKDF(RS, H0, nil)
     H2 = HKDF(H1, H1, nil)           // without prelude
-    H3 = HKDF(H2, IE, nil)
-    H4 = HKDF(H3, RS^E, nil)
-    H5, K1 = HKDF(H4, zero, nil)
+    H3 = HKDF(IE, H2, nil)
+    H4 = HKDF(RS^E, H3, nil)
+    H5, K1 = HKDF(zero, H4, nil)
     S1 = ENC(K1, p1)
-    H6, T1 = HKDF(H5 , S1, nil)
+    H6, T1 = HKDF(S1, H5, nil)
 ]
 
 I -> R: IE, S1, T1
 
 principal R[
     _H0 = HASH(pid)
-    _H1 = HKDF(_H0, RS, nil)
+    _H1 = HKDF( RS, _H0, nil)
     _H2 = HKDF(_H1, _H1, nil)           // without prelude
-    _H3 = HKDF(_H2, IE, nil)
-    _H4 = HKDF(_H3, IE^R, nil)
-    _H5, _K1 = HKDF(_H4, zero, nil)
-    _H6, _T1 = HKDF(_H5 , S1, nil)
+    _H3 = HKDF( IE, _H2, nil)
+    _H4 = HKDF(IE^R,_H3, nil)
+    _H5, _K1 = HKDF(zero, _H4, nil)
+    _H6, _T1 = HKDF(S1, _H5, nil)
     _ = ASSERT(_T1, T1)?
 ]
 
