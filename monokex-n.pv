@@ -1,8 +1,15 @@
 (* Proverif 2.02p1 *)
 (* Monokex, "N" pattern, warmup *)
 (* active attacker by default *)
-
 (*
+$ proverif -color monokex-n.pv | egrep "RES|ok"
+ok, secrecy assumption verified: fact unreachable attacker(R[])
+ok, secrecy assumption verified: fact unreachable attacker(E[!1 = v])
+ok, secrecy assumption verified: fact unreachable attacker(msg[!1 = v])
+RESULT not attacker(msg[!1 = v]) is true.
+*)
+(*
+    ================================
     TODO: this list should be empty:
     o) events
     o) query + inj-event
@@ -83,7 +90,7 @@ let Initiator(RS: bitstring) =
 let Responder(R: exponent, RS: bitstring) =
    new msg: bitstring;
 
-   in(c, (IE: bitstring, S1: bitstring, T1: bitstring));
+   in(c, (IE: bitstring, S1: bitstring, zT1: bitstring));
    let H0 = pid in
    let H1 = mac(H0, RS) in
    let H2 = mac(H1, H1) in
@@ -95,6 +102,8 @@ let Responder(R: exponent, RS: bitstring) =
    let Z2 = mac(H5, S1) in
    let H6 = first(Z2) in
    let T1 = second(Z2) in
+   (* if T1 = zT1 ... *)
+
    out(c, enc(H6, msg))
 .
 
