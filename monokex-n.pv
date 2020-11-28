@@ -25,25 +25,22 @@
 (* Public channel *)
 free c: channel.
 
-type plain.
-
 (* Constants *)
-const pid: bitstring.
-const zero: bitstring.
+const MonokexN: bitstring.
+const zero    : bitstring.
 
-(* XXX, switch to use keys with correct params order *)
-type mackey.
 fun mac(bitstring, bitstring) : bitstring.
 
 (* Diffie-Hellman *)
-type exponent.
-const g: bitstring.
-fun exp(bitstring, exponent): bitstring.
-equation forall x: exponent, y: exponent;
+type private.
+type public.
+const g: public.
+fun exp(public, private): public.
+equation forall x: private, y: private;
    exp(exp(g, x), y) = exp(exp(g, y), x).
+fun pub2bs(public): bitstring [data, typeConverter].
 
 (* Symmetric encryption *)
-(* XXX, switch to use keys with correct params order *)
 fun enc(bitstring, bitstring): bitstring.
 reduc forall a: bitstring, b: bitstring;
    dec(enc(a, b), b) = a.
@@ -55,38 +52,32 @@ reduc forall x: bitstring;
    unsplit(first(x), second(x)) = x.
 
 (* Secrecy query *)
-(* XXX, later check keys *)
-query attacker(new msgA).
-query attacker(new msgB).
+(* XXX, H 6 *)
+(* query attacker(new msg). *)
 
 (* Secrecy assumptions *)
 not attacker(new R).
 not attacker(new E).
-not attacker(new msgA).
-not attacker(new msgB).
 
 (* Events and authentication queries *)
-event ping(exponent, bitstring).
-event pong(exponent, bitstring).
+event ping(private, public).
+event pong(private, public).
 event done.
-event failed.
-query a: exponent, b: bitstring;
+query a: private, b: public;
    inj-event(pong(a, b)) ==>
    inj-event(ping(a, b)).
 query event(done).
-query event(failed).
 
-let Initiator(RS: bitstring) =
-   new E: exponent;
+let Initiator(RS: public) =
+   new E: private;
    new p1: bitstring;
-   new msgA: bitstring;
 
    let IE = exp(g, E) in
-   let H0 = pid in
-   let H1 = mac(H0, RS) in
+   let H0 = MonokexN in
+   let H1 = mac(H0, pub2bs(RS)) in
    let H2 = mac(H1, H1) in
-   let H3 = mac(H2, IE) in
-   let H4 = mac(H3, exp(RS, E)) in
+   let H3 = mac(H2, pub2bs(IE)) in
+   let H4 = mac(H3, pub2bs(exp(RS, E))) in
    let Z1 = enc(H4, zero) in
    let H5 = first(Z1) in
    let K1 = second(Z1) in
@@ -95,25 +86,17 @@ let Initiator(RS: bitstring) =
    let H6 = first(Z2) in
    let T1 = second(Z2) in
    event ping(E, RS);
-   out(c, (IE, S1, T1));
-
-   (* out(c, enc(H6, (T1, msgA))); *)
-
-   in(c, (X: bitstring));
-   let Y1 = dec(H6, X) in
-   if Y1=T1 then event done else event failed
+   out(c, (IE, S1, T1))
 .
 
-let Responder(R: exponent, RS: bitstring) =
-   new msgB: plain;
-
-   in(c, (IE: bitstring, S1: bitstring, zT1: bitstring));
+let Responder(R: private, RS: public) =
+   in(c, (IE: public, S1: bitstring, zT1: bitstring));
    event pong(R, IE);
-   let H0 = pid in
-   let H1 = mac(H0, RS) in
+   let H0 = MonokexN in
+   let H1 = mac(H0, pub2bs(RS)) in
    let H2 = mac(H1, H1) in
-   let H3 = mac(H2, IE) in
-   let H4 = mac(H3, exp(IE, R)) in
+   let H3 = mac(H2, pub2bs(IE)) in
+   let H4 = mac(H3, pub2bs(exp(IE, R))) in
    let Z1 = enc(H4, zero) in
    let H5 = first(Z1) in
    let K1 = second(Z1) in
@@ -124,7 +107,7 @@ let Responder(R: exponent, RS: bitstring) =
 .
 
 process
-   new R: exponent;
+   new R: private;
 
    let RS = exp(g, R) in
    out(c, RS);
