@@ -22,6 +22,8 @@
     o) etc.
 *)
 
+set traceDisplay = long.
+
 (* Public channel *)
 free c: channel.
 
@@ -40,7 +42,7 @@ equation forall x: private, y: private;
    exp(exp(g, x), y) = exp(exp(g, y), x).
 fun pub2bs(public): bitstring [data, typeConverter].
 
-(* Symmetric encryption *)
+(* Symmetric encryption: (plain, key) *)
 fun enc(bitstring, bitstring): bitstring.
 reduc forall a: bitstring, b: bitstring;
    dec(enc(a, b), b) = a.
@@ -52,21 +54,21 @@ reduc forall x: bitstring;
    unsplit(first(x), second(x)) = x.
 
 (* Secrecy query *)
-(* XXX, H 6 *)
-(* query attacker(new msg). *)
+free msg: bitstring [private].
+query attacker(msg).
 
 (* Secrecy assumptions *)
 not attacker(new R).
 not attacker(new E).
 
 (* Events and authentication queries *)
-event ping(private, public).
-event pong(private, public).
-event done.
-query a: private, b: public;
-   inj-event(pong(a, b)) ==>
-   inj-event(ping(a, b)).
-query event(done).
+(* event ping(private, public). *)
+(* event pong(private, public). *)
+(* event done. *)
+(* query a: private, b: public; *)
+   (* inj-event(pong(a, b)) ==> *)
+   (* inj-event(ping(a, b)). *)
+(* query event(done). *)
 
 let Initiator(RS: public) =
    new E: private;
@@ -85,13 +87,13 @@ let Initiator(RS: public) =
    let Z2 = mac(H5, S1) in
    let H6 = first(Z2) in
    let T1 = second(Z2) in
-   event ping(E, RS);
+   (* event ping(E, RS); *)
    out(c, (IE, S1, T1))
 .
 
 let Responder(R: private, RS: public) =
    in(c, (IE: public, S1: bitstring, zT1: bitstring));
-   event pong(R, IE);
+   (* event pong(R, IE); *)
    let H0 = MonokexN in
    let H1 = mac(H0, pub2bs(RS)) in
    let H2 = mac(H1, H1) in
@@ -103,8 +105,13 @@ let Responder(R: private, RS: public) =
    let Z2 = mac(H5, S1) in
    let H6 = first(Z2) in
    let T1 = second(Z2) in
-   out(c, enc(H6, T1))
+   out(c, enc(msg, H6))
 .
+
+(*
+red   - found + called + touched
+green - not all above
+*)
 
 process
    new R: private;
