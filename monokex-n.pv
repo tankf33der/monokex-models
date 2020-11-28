@@ -58,8 +58,8 @@ free msg: bitstring [private].
 query attacker(msg).
 
 (* Secrecy assumptions *)
-not attacker(new R).
-not attacker(new E).
+(* not attacker(new R). *)
+(* not attacker(new E). *)
 
 (* Events and authentication queries *)
 (* event ping(private, public). *)
@@ -80,18 +80,21 @@ let Initiator(RS: public) =
    let H2 = mac(H1, H1) in
    let H3 = mac(H2, pub2bs(IE)) in
    let H4 = mac(H3, pub2bs(exp(RS, E))) in
-   let Z1 = enc(H4, zero) in
+   let Z1 = enc(zero, H4) in
    let H5 = first(Z1) in
    let K1 = second(Z1) in
-   let S1 = enc(K1, p1) in
+   let S1 = enc(p1, K1) in
    let Z2 = mac(H5, S1) in
    let H6 = first(Z2) in
    let T1 = second(Z2) in
    (* event ping(E, RS); *)
    out(c, (IE, S1, T1))
+   (* out(c, enc(msg, H6)) *)
 .
 
 let Responder(R: private, RS: public) =
+   new k: bitstring;
+
    in(c, (IE: public, S1: bitstring, zT1: bitstring));
    (* event pong(R, IE); *)
    let H0 = MonokexN in
@@ -99,7 +102,7 @@ let Responder(R: private, RS: public) =
    let H2 = mac(H1, H1) in
    let H3 = mac(H2, pub2bs(IE)) in
    let H4 = mac(H3, pub2bs(exp(IE, R))) in
-   let Z1 = enc(H4, zero) in
+   let Z1 = enc(zero, H4) in
    let H5 = first(Z1) in
    let K1 = second(Z1) in
    let Z2 = mac(H5, S1) in
@@ -118,4 +121,4 @@ process
 
    let RS = exp(g, R) in
    out(c, RS);
-   (!Initiator(RS)) | (!Responder(R, RS))
+   !Initiator(RS) | !Responder(R, RS)
