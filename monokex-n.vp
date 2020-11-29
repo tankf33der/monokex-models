@@ -49,7 +49,5 @@ principal R1[
 
 queries[
     confidentiality? p2
-    // confidentiality? R
-    // confidentiality? E
-    // confidentiality? H6
+     // confidentiality? H6
 ]
