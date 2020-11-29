@@ -5,21 +5,9 @@
 (*
     ================================
     TODO: this list should be empty:
-    o) add events
-    o) H6 created, check via enc,dec
-    o) mac, kdf via key type
     o) if T1 = zT1 then set event (!)
     o)    ^^^^^^^ find the way to do it
     o)    ^^^^^^^ done event
-    o) weaksecret msg
-    o) deniability equivalence (nl, p 41)
-    o) read all settings in manual, pp. 102
-
-    choice VS. query,noninfer,weaksecret (cant be in one file)
-    o) replay attack detection via choice (manual, pp. 58-59)
-    o) choice, compare terms, will be another file (!)
-    o) choice+sync
-    o) etc.
 *)
 
 set traceDisplay = long.
@@ -54,8 +42,10 @@ reduc forall x: bitstring;
    unsplit(first(x), second(x)) = x.
 
 (* Secrecy query *)
-free msg: bitstring [private].
-query attacker(msg).
+free msg_i: bitstring [private].
+free msg_r: bitstring [private].
+query attacker(msg_i).
+query attacker(msg_r).
 
 (* Secrecy assumptions *)
 (* not attacker(new R). *)
@@ -88,8 +78,10 @@ let Initiator(RS: public) =
    let H6 = first(Z2) in
    let T1 = second(Z2) in
    (* event ping(E, RS); *)
-   out(c, (IE, S1, T1))
-   (* out(c, enc(msg, H6)) *)
+   out(c, (IE, S1, T1));
+
+   (* Ready, use it *)
+   out(c, enc(msg_i, H6))
 .
 
 let Responder(R: private, RS: public) =
@@ -108,13 +100,10 @@ let Responder(R: private, RS: public) =
    let Z2 = mac(H5, S1) in
    let H6 = first(Z2) in
    let T1 = second(Z2) in
-   out(c, enc(msg, H6))
+   if  T1 = zT1 then
+   (* Ready, use it *)
+   out(c, enc(msg_r, H6))
 .
-
-(*
-red   - found + called + touched
-green - not all above
-*)
 
 process
    new R: private;
