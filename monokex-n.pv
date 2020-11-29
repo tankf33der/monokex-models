@@ -42,10 +42,10 @@ reduc forall x: bitstring;
    unsplit(first(x), second(x)) = x.
 
 (* Secrecy query *)
-free msg_i: bitstring [private].
-free msg_r: bitstring [private].
-query attacker(msg_i).
-query attacker(msg_r).
+free text1: bitstring [private].
+free text2: bitstring [private].
+query attacker(text1).
+query attacker(text2).
 
 (* Secrecy assumptions *)
 (* not attacker(new R). *)
@@ -81,12 +81,10 @@ let Initiator(RS: public) =
    out(c, (IE, S1, T1));
 
    (* Ready, use it *)
-   out(c, enc(msg_i, H6))
+   out(c, enc(text1, H6))
 .
 
 let Responder(R: private, RS: public) =
-   new k: bitstring;
-
    in(c, (IE: public, S1: bitstring, zT1: bitstring));
    (* event pong(R, IE); *)
    let H0 = MonokexN in
@@ -101,8 +99,9 @@ let Responder(R: private, RS: public) =
    let H6 = first(Z2) in
    let T1 = second(Z2) in
    if  T1 = zT1 then
+
    (* Ready, use it *)
-   out(c, enc(msg_r, H6))
+   out(c, enc(text2, H6))
 .
 
 process
